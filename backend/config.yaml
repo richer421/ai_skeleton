@@ -1,0 +1,72 @@
+# 项目基础信息（AI易识别的元信息）
+project:
+  name: "ai_skeleton"
+  version: "1.0.0"
+  description: "AI 全栈脚手架（简单三层架构 + MCP 协议）"
+
+# 环境配置（区分dev/test/prod，AI可按环境生成不同配置）
+environment: "dev"  # 运行环境：dev(开发)/test(测试)/prod(生产)
+
+# 服务器/运行配置（通用运行参数）
+server:
+  host: "0.0.0.0"
+  port: 8080
+  mode: "debug"                   # gin 模式：debug/release/test
+  timeout: 30                     # 请求超时时间（秒）
+
+# 数据库配置（适配repository层）
+database:
+  mysql:
+    host: "127.0.0.1"
+    port: 3306
+    username: "root"
+    password: ""
+    database: "ai_skeleton"
+    charset: "utf8mb4"
+    pool_size: 10                 # 连接池大小
+    max_idle: 5                   # 最大空闲连接数
+    max_lifetime: 3600            # 连接最大生命周期（秒）
+    connect_timeout: 5            # 连接超时（秒）
+  # redis:
+  #   host: "127.0.0.1"
+  #   port: 6379
+  #   password: ""
+  #   db: 0
+  #   expire_seconds: 3600        # 默认过期时间（秒）
+
+# 业务模块配置（适配service层，按业务模块拆分）
+# business:
+#   user:
+#     phone_check: true           # 是否校验手机号格式
+#     password_min_length: 6      # 密码最小长度
+#     token_expire_hours: 24      # 用户token过期时间
+#   order:
+#     auto_cancel_minutes: 30     # 订单未支付自动取消时间
+#     max_items: 50               # 单次下单最大商品数
+
+# 第三方服务配置（适配utils层/接口层）
+# third_party:
+#   sms:
+#     api_key: "your_sms_api_key"
+#     api_secret: "your_sms_secret"
+#     template_id: "SMS_123456"   # 验证码模板ID
+#     send_limit: 5               # 单日单手机号发送次数限制
+#   oss:
+#     endpoint: "oss-cn-beijing.aliyuncs.com"
+#     bucket: "ai-skeleton-bucket"
+#     access_key: "your_oss_key"
+#     secret_key: "your_oss_secret"
+
+# 日志配置（通用工具配置）
+logging:
+  level: "debug"                  # 日志级别：debug/info/warn/error
+  file_path: "./logs/app.log"
+  max_size: "100MB"               # 单个日志文件大小
+  backup_count: 10                # 日志备份数量
+  format: "json"                  # 日志格式：json/text
+
+# MCP 配置
+mcp:
+  enabled: true                   # 是否启用 MCP 协议
+  tools_path: "/api/v1/mcp/tools"
+  execute_path: "/api/v1/mcp/execute"

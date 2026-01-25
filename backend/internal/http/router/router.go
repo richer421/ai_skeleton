@@ -7,10 +7,14 @@ import (
 	"github.com/richer/ai_skeleton/internal/http/api"
 	"github.com/richer/ai_skeleton/internal/http/middleware"
 	"github.com/richer/ai_skeleton/internal/mcp"
+	"github.com/spf13/viper"
 )
 
 // Setup 设置路由
 func Setup() *gin.Engine {
+	// 设置 Gin 模式
+	gin.SetMode(viper.GetString("server.mode"))
+
 	r := gin.New()
 
 	// 中间件

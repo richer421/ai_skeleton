@@ -6,6 +6,7 @@ import (
 
 	"github.com/richer/ai_skeleton/internal/config"
 	"github.com/richer/ai_skeleton/internal/http/router"
+	"github.com/spf13/viper"
 )
 
 // @title AI Skeleton API
@@ -23,7 +24,7 @@ func main() {
 	r := router.Setup()
 
 	// 启动服务器
-	addr := fmt.Sprintf(":%s", config.AppConfig.Server.Port)
+	addr := fmt.Sprintf("%s:%d", viper.GetString("server.host"), viper.GetInt("server.port"))
 	log.Printf("Server starting on %s", addr)
 
 	if err := r.Run(addr); err != nil {
