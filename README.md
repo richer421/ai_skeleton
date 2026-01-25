@@ -2,9 +2,27 @@
 
 面向 AI 辅助开发的全栈项目脚手架，专为中文开发者设计。
 
-## 快速开始（CLI）
+## 一键安装
 
-使用 CLI 工具 30 秒创建一个新项目：
+```bash
+curl -fsSL https://raw.githubusercontent.com/richer421/ai_skeleton/main/install.sh | bash
+```
+
+安装完成后：
+
+```bash
+# 创建新项目
+ai-skeleton init my_project
+
+# 启动项目
+cd my_project
+make backend-dev   # 后端：http://localhost:8080
+make frontend-dev  # 前端：http://localhost:5173
+```
+
+## 快速开始（手动安装）
+
+如果你想手动安装 CLI 工具：
 
 ```bash
 # 1. 克隆脚手架
