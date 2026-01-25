@@ -32,7 +32,7 @@ ai_skeleton/
 ├── backend/              # Go 后端服务（简单三层架构）
 │   ├── internal/        # 内部代码
 │   │   ├── http/        # HTTP 相关
-│   │   │   ├── api/     # API 处理器（Gin Handler）
+│   │   │   ├── api/     # API 处理器（Gin API 函数）
 │   │   │   ├── router/  # 路由配置
 │   │   │   └── middleware/ # 中间件
 │   │   ├── service/     # 业务逻辑层
@@ -222,11 +222,31 @@ HTTP 请求 → API → Service → Repository → 数据库
 
 ### 快速开始
 
-**安装依赖：**
+**使用 CLI 工具（推荐）：**
+
+```bash
+# 一键安装 CLI 工具
+curl -fsSL https://raw.githubusercontent.com/richer421/ai_skeleton/main/install.sh | bash
+
+# 初始化新项目
+ai-skeleton init my_project
+
+# 进入项目并启动
+cd my_project
+make backend-dev   # 启动后端
+make frontend-dev  # 启动前端
+```
+
+**手动安装依赖：**
 ```bash
 # 安装 Air（Go 热重载工具）
 go install github.com/air-verse/air@latest
+
+# 安装 Swagger
+go install github.com/swaggo/swag/cmd/swag@latest
 ```
+
+**启动服务：**
 
 1. **启动前端开发**
    ```bash
@@ -267,36 +287,44 @@ go install github.com/air-verse/air@latest
 
 #### 分层规范
 
-**Handler 层（HTTP 处理层）**
+**API 层（HTTP 处理层）**
+- 位置：`internal/http/api/`
 - 负责接收 HTTP 请求和返回响应
 - 进行参数验证和绑定
 - 调用 Service 层处理业务逻辑
 - 所有 API 接口必须添加 Swagger 注释
 - 不包含业务逻辑，只做请求转发
+- API 函数直接定义，不使用 Handler 结构体
 
 **Service 层（业务逻辑层）**
+- 位置：`internal/service/{服务名}/`
 - 实现核心业务逻辑和规则
 - 调用 Repository 层进行数据操作
 - 处理事务管理
 - 可以调用多个 Repository
 - 不直接处理 HTTP 请求
+- 每次请求创建新的 Service 实例（无状态）
 
 **Repository 层（数据访问层）**
+- 位置：`internal/repository/`
 - 封装数据库操作
 - 使用 Gen-GORM 生成的代码
 - 提供 CRUD 接口
 - 只负责数据持久化，不包含业务逻辑
 
 **MCP 模块**
-- MCP 适配代码放在 `backend/mcp/` 目录
+- 位置：`internal/mcp/`
 - 调用 Service 层功能，转换为 MCP 协议格式
 - MCP 工具需要提供 JSON Schema 描述
+- 每个工具的 handler 中创建 Service 实例
 
 #### 可测试性规范（AI 自动化测试）
 
 **⚠️ 重要：所有代码必须便于 AI 生成和执行自动化测试**
 
-**1. 接口抽象 + 依赖注入**
+**注意**：当前项目使用简单的无参数构造函数（如 `health.NewHealthService()`），每次请求创建新实例。以下规范是针对需要依赖注入的复杂服务（如需要 Repository 层）的最佳实践。
+
+**1. 接口抽象 + 依赖注入（针对复杂服务）**
 ```go
 // Service 层必须定义接口
 type UserService interface {
@@ -388,7 +416,7 @@ func AssertEqual(t *testing.T, got, want interface{}) {
 **5. 测试覆盖要求**
 - 每个 Service 方法必须有对应的测试
 - 至少包含：成功场景、失败场景、边界条件
-- Handler 层测试使用 `httptest` 模拟 HTTP 请求
+- API 层测试使用 `httptest` 模拟 HTTP 请求
 - Repository 层可以使用内存数据库或 mock
 
 **6. Mock 规范**
@@ -440,7 +468,7 @@ func AssertEqual(t *testing.T, got, want interface{}) {
 ### 通用规范
 - 提交信息使用中文，清晰描述改动内容
 - 重要功能必须包含测试
-- 避免提交敏感信息（使用 .env 文件）
+- 避免提交敏感信息（配置文件中使用占位符或环境变量）
 
 ## AI 协作建议
 
@@ -468,19 +496,19 @@ func AssertEqual(t *testing.T, got, want interface{}) {
 
 1. **理解项目结构**
    - 这是一个前后端分离的全栈项目
-   - 后端采用简单三层架构：Handler → Service → Repository
+   - 后端采用简单三层架构：API → Service → Repository
    - 前端使用 React + Vite + Ant Design v5
    - 所有操作优先使用 Makefile 中定义的命令
-   - 后端接口天然兼容 MCP 协议，MCP 适配代码放在 `backend/mcp/` 模块
+   - 后端接口天然兼容 MCP 协议，MCP 适配代码放在 `internal/mcp/` 模块
 
 2. **后端开发流程（三层架构）**
-   - **Handler 层**：接收 HTTP 请求，参数验证，添加 Swagger 注释
-   - **Service 层**：实现业务逻辑，调用 Repository
+   - **API 层**：接收 HTTP 请求，参数验证，添加 Swagger 注释，直接定义函数无需结构体
+   - **Service 层**：实现业务逻辑，调用 Repository，每次请求创建新实例
    - **Repository 层**：使用 Gen-GORM 生成数据库操作代码
    - **MCP 模块**：调用 Service 层，实现 MCP 协议适配
    - 使用 `make gen-swagger` 生成文档
    - 使用 `make gen-sql` 生成数据库代码
-   - 调用链路：HTTP → Handler → Service → Repository → 数据库
+   - 调用链路：HTTP → API → Service → Repository → 数据库
 
 3. **前端开发流程 - 关键要求**
    - **第一步：查阅 Ant Design v5 文档**，确认组件能力
@@ -494,7 +522,7 @@ func AssertEqual(t *testing.T, got, want interface{}) {
    - 优先编辑现有文件，避免创建不必要的新文件
    - 需求文档必须放在 `requirements/` 目录
    - 不要修改 `.gitignore` 中列出的文件
-   - 配置文件使用 `.env` 而非硬编码
+   - 配置文件使用 `config.yaml` (Viper + YAML)
 
 5. **开发节奏**
    - 收到产品需求 → 生成需求文档 → 等待确认 → 开始开发
