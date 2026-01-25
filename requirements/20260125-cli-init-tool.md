@@ -150,9 +150,9 @@ ai-skeleton init [项目名] [选项]
   --desc, -d         项目描述
   --version, -v      项目版本（默认：1.0.0）
   --module, -m       Go 模块路径
-  --skip-deps        跳过依赖安装
-  --skip-npm         跳过 npm 依赖安装
-  --skip-go          跳过 Go 工具安装
+  --skipdeps         跳过依赖安装
+  --skipnpm          跳过 npm 依赖安装
+  --skipgo           跳过 Go 工具安装
 ```
 
 #### `generate service` 命令
@@ -160,10 +160,9 @@ ai-skeleton init [项目名] [选项]
 ai-skeleton generate service [服务名] [选项]
 
 选项：
-  --with-api         生成 API 层（默认）
-  --no-api           不生成 API 层
-  --with-mcp         注册 MCP 工具
-  --no-test          不生成测试文件
+  --withapi          生成 API 层（默认）
+  --withmcp          注册 MCP 工具
+  --withtest         生成测试文件（默认）
 ```
 
 ## 数据模型

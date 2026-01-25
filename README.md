@@ -160,17 +160,17 @@ curl -X POST http://localhost:8080/api/v1/mcp/execute \
 
 ```bash
 # 查看帮助
-./cli/ai-skeleton --help
+ai-skeleton --help
 
 # 初始化项目
-./cli/ai-skeleton init [项目名] [选项]
+ai-skeleton init [项目名] [选项]
 
 # 生成代码
-./cli/ai-skeleton generate service [服务名]
+ai-skeleton generate service [服务名]
 
 # 配置管理
-./cli/ai-skeleton config generate
-./cli/ai-skeleton config validate
+ai-skeleton config generate
+ai-skeleton config validate
 ```
 
 详见 [CLI 工具使用文档](./requirements/20260125-cli-init-tool.md)

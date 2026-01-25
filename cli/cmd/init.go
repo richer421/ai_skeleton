@@ -40,9 +40,9 @@ func init() {
 	initCmd.Flags().StringVarP(&projectDesc, "desc", "d", "", "项目描述")
 	initCmd.Flags().StringVarP(&projectVersion, "version", "v", "1.0.0", "项目版本")
 	initCmd.Flags().StringVarP(&modulePath, "module", "m", "", "Go 模块路径")
-	initCmd.Flags().BoolVar(&skipDeps, "skip-deps", false, "跳过依赖安装")
-	initCmd.Flags().BoolVar(&skipNpm, "skip-npm", false, "跳过 npm 依赖安装")
-	initCmd.Flags().BoolVar(&skipGo, "skip-go", false, "跳过 Go 工具安装")
+	initCmd.Flags().BoolVar(&skipDeps, "skipdeps", false, "跳过依赖安装")
+	initCmd.Flags().BoolVar(&skipNpm, "skipnpm", false, "跳过 npm 依赖安装")
+	initCmd.Flags().BoolVar(&skipGo, "skipgo", false, "跳过 Go 工具安装")
 }
 
 func runInit(cmd *cobra.Command, args []string) error {

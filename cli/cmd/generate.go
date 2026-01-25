@@ -26,7 +26,7 @@ var generateServiceCmd = &cobra.Command{
 
 示例：
   ai-skeleton generate service user
-  ai-skeleton gen service order --with-mcp`,
+  ai-skeleton gen service order --withmcp`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		serviceName := args[0]
@@ -43,7 +43,7 @@ func init() {
 	rootCmd.AddCommand(generateCmd)
 	generateCmd.AddCommand(generateServiceCmd)
 
-	generateServiceCmd.Flags().BoolVar(&withAPI, "with-api", true, "生成 API 层")
-	generateServiceCmd.Flags().BoolVar(&withMCP, "with-mcp", false, "注册 MCP 工具")
-	generateServiceCmd.Flags().BoolVar(&withTest, "with-test", true, "生成测试文件")
+	generateServiceCmd.Flags().BoolVar(&withAPI, "withapi", true, "生成 API 层")
+	generateServiceCmd.Flags().BoolVar(&withMCP, "withmcp", false, "注册 MCP 工具")
+	generateServiceCmd.Flags().BoolVar(&withTest, "withtest", true, "生成测试文件")
 }

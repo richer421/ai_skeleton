@@ -49,3 +49,5 @@ coverage/
 *.tar
 *.zip
 *.gz
+cli/ai-skeleton
+cli/*.exe
