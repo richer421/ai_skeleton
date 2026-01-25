@@ -2,6 +2,33 @@
 
 面向 AI 辅助开发的全栈项目脚手架，专为中文开发者设计。
 
+## 快速开始（CLI）
+
+使用 CLI 工具 30 秒创建一个新项目：
+
+```bash
+# 1. 克隆脚手架
+git clone https://github.com/richer421/ai_skeleton.git
+cd ai_skeleton
+
+# 2. 构建 CLI 工具
+cd cli && go build -o ai-skeleton main.go && cd ..
+
+# 3. 初始化新项目（自动安装依赖）
+./cli/ai-skeleton init my_project
+
+# 4. 启动项目
+cd my_project
+make backend-dev   # 后端：http://localhost:8080
+make frontend-dev  # 前端：http://localhost:5173
+```
+
+CLI 会自动：
+- ✓ 检查环境（Go、npm）
+- ✓ 复制模板并替换项目信息
+- ✓ 安装依赖（Air、Swagger、npm packages）
+- ✓ 确保前后端能正常启动
+
 ## 技术栈
 
 ### 后端
@@ -18,7 +45,7 @@
 - TypeScript
 - Axios - HTTP 客户端
 
-## 快速开始
+## 详细使用说明
 
 ### 方式一：使用 CLI 工具初始化（推荐）
 
