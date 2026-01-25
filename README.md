@@ -20,6 +20,46 @@
 
 ## 快速开始
 
+### 方式一：使用 CLI 工具初始化（推荐）
+
+**1. 构建 CLI 工具**
+
+```bash
+cd cli
+go build -o ai-skeleton main.go
+```
+
+**2. 初始化新项目**
+
+```bash
+# 在脚手架根目录运行
+./cli/ai-skeleton init
+
+# 或指定项目名称和配置
+./cli/ai-skeleton init my_project --desc "我的项目" --module "github.com/myname/my_project"
+```
+
+CLI 工具会自动：
+- ✓ 检查环境依赖（Go、npm）
+- ✓ 收集项目信息（交互式输入）
+- ✓ 复制模板文件并替换占位符
+- ✓ 安装依赖（Air、Swagger、npm packages）
+- ✓ 确保前后端都能正常启动
+
+**3. 启动项目**
+
+```bash
+cd my_project
+
+# 启动后端
+make backend-dev
+
+# 启动前端（另开终端）
+make frontend-dev
+```
+
+### 方式二：手动安装
+
 ### 0. 安装依赖
 
 **后端依赖：**
@@ -70,6 +110,25 @@ curl -X POST http://localhost:8080/api/v1/mcp/execute \
   -H "Content-Type: application/json" \
   -d '{"tool":"health_check","params":{}}'
 ```
+
+## CLI 工具命令
+
+```bash
+# 查看帮助
+./cli/ai-skeleton --help
+
+# 初始化项目
+./cli/ai-skeleton init [项目名] [选项]
+
+# 生成代码
+./cli/ai-skeleton generate service [服务名]
+
+# 配置管理
+./cli/ai-skeleton config generate
+./cli/ai-skeleton config validate
+```
+
+详见 [CLI 工具使用文档](./requirements/20260125-cli-init-tool.md)
 
 ## 可用命令
 
