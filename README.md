@@ -50,7 +50,7 @@ CLI 会自动：
 ## 技术栈
 
 ### 后端
-- Go 1.21
+- Go 1.23
 - Gin - HTTP 框架
 - GORM + Gen - ORM 和代码生成
 - Swagger - API 文档
@@ -71,17 +71,17 @@ CLI 会自动：
 
 ```bash
 cd cli
-go build -o ai-skeleton main.go
+go build -o ais main.go
 ```
 
 **2. 初始化新项目**
 
 ```bash
 # 在脚手架根目录运行
-./cli/ai-skeleton init
+./cli/ais init
 
 # 或指定项目名称和配置
-./cli/ai-skeleton init my_project --desc "我的项目" --module "github.com/myname/my_project"
+./cli/ais init my_project --desc "我的项目" --module "github.com/myname/my_project"
 ```
 
 CLI 工具会自动：
@@ -124,7 +124,6 @@ cd ai_skeleton
 
 ```bash
 cd backend
-cp .env.example .env
 make backend-dev
 ```
 
@@ -160,17 +159,17 @@ curl -X POST http://localhost:8080/api/v1/mcp/execute \
 
 ```bash
 # 查看帮助
-ai-skeleton --help
+ais --help
 
 # 初始化项目
-ai-skeleton init [项目名] [选项]
+ais init [项目名] [选项]
 
 # 生成代码
-ai-skeleton generate service [服务名]
+ais generate service [服务名]
 
 # 配置管理
-ai-skeleton config generate
-ai-skeleton config validate
+ais config generate
+ais config validate
 ```
 
 详见 [CLI 工具使用文档](./requirements/20260125-cli-init-tool.md)
