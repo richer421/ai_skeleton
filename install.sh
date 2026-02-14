@@ -85,21 +85,21 @@ echo ""
 # 编译 CLI 工具
 echo -e "${YELLOW}编译 CLI 工具...${NC}"
 cd cli
-go build -o ai-skeleton main.go
+go build -o ais main.go
 echo -e "${GREEN}✓ 编译完成${NC}"
 echo ""
 
 # 创建符号链接或复制到 PATH
 BIN_DIR="/usr/local/bin"
-CLI_PATH="$INSTALL_DIR/cli/ai-skeleton"
+CLI_PATH="$INSTALL_DIR/cli/ais"
 
 if [ -w "$BIN_DIR" ]; then
-    ln -sf "$CLI_PATH" "$BIN_DIR/ai-skeleton"
-    echo -e "${GREEN}✓ 已安装到 $BIN_DIR/ai-skeleton${NC}"
+    ln -sf "$CLI_PATH" "$BIN_DIR/ais"
+    echo -e "${GREEN}✓ 已安装到 $BIN_DIR/ais${NC}"
 else
     echo -e "${YELLOW}提示: 无法写入 $BIN_DIR，需要 sudo 权限${NC}"
-    if sudo ln -sf "$CLI_PATH" "$BIN_DIR/ai-skeleton"; then
-        echo -e "${GREEN}✓ 已安装到 $BIN_DIR/ai-skeleton${NC}"
+    if sudo ln -sf "$CLI_PATH" "$BIN_DIR/ais"; then
+        echo -e "${GREEN}✓ 已安装到 $BIN_DIR/ais${NC}"
     else
         echo -e "${RED}安装失败，请手动添加到 PATH:${NC}"
         echo "export PATH=\"\$PATH:$INSTALL_DIR/cli\""
