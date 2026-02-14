@@ -12,7 +12,7 @@ curl -fsSL https://raw.githubusercontent.com/richer421/ai_skeleton/main/install.
 
 ```bash
 # 创建新项目
-ai-skeleton init my_project
+ais init my_project
 
 # 启动项目
 cd my_project
@@ -30,10 +30,10 @@ git clone https://github.com/richer421/ai_skeleton.git
 cd ai_skeleton
 
 # 2. 构建 CLI 工具
-cd cli && go build -o ai-skeleton main.go && cd ..
+cd cli && go build -o ais main.go && cd ..
 
 # 3. 初始化新项目（自动安装依赖）
-./cli/ai-skeleton init my_project
+./cli/ais init my_project
 
 # 4. 启动项目
 cd my_project

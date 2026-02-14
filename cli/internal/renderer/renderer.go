@@ -1,7 +1,10 @@
 package renderer
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,12 +12,16 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
+// DefaultTemplateURL 默认模板仓库地址
+const DefaultTemplateURL = "https://github.com/richer421/ai_skeleton/archive/main.zip"
+
 // ProjectMeta 项目元信息
 type ProjectMeta struct {
-	Name        string // 项目名称
-	Description string // 项目描述
-	Version     string // 项目版本
-	Module      string // Go 模块路径
+	Name         string // 项目名称
+	Description  string // 项目描述
+	Version      string // 项目版本
+	Module       string // Go 模块路径
+	TemplateURL  string // 自定义模板仓库地址（可选，用于私有仓库）
 }
 
 // PromptProjectInfo 交互式收集项目信息
@@ -74,68 +81,134 @@ func RenderProject(meta *ProjectMeta) error {
 		return fmt.Errorf("目录 %s 已存在，请选择其他项目名称", meta.Name)
 	}
 
-	// 获取当前脚手架根目录
-	scaffoldRoot, err := getScaffoldRoot()
-	if err != nil {
-		return err
+	// 确定模板URL
+	templateURL := DefaultTemplateURL
+	if meta.TemplateURL != "" {
+		templateURL = meta.TemplateURL
+		fmt.Println("  🌐 正在从私有仓库获取模板...")
+	} else {
+		fmt.Println("  🌐 正在从官方仓库获取最新模板...")
 	}
 
-	// 复制文件
-	if err := copyDir(scaffoldRoot, meta.Name, meta); err != nil {
-		return err
+	// 从远程下载模板
+	if err := downloadAndExtractTemplate(meta.Name, templateURL, meta); err != nil {
+		return fmt.Errorf("下载模板失败: %w", err)
 	}
 
+	fmt.Println("  ✓ 项目文件生成完成")
 	return nil
 }
 
-// getCurrentDir 获取当前目录
-func getCurrentDir() string {
-	dir, err := os.Getwd()
+// downloadAndExtractTemplate 从远程下载并提取模板
+func downloadAndExtractTemplate(dst, templateURL string, meta *ProjectMeta) error {
+	// 创建临时目录
+	tempDir, err := os.MkdirTemp("", "ai_skeleton_template_*")
 	if err != nil {
-		return "my_project"
+		return err
 	}
-	return filepath.Base(dir)
-}
+	defer os.RemoveAll(tempDir)
 
-// getScaffoldRoot 获取脚手架根目录
-func getScaffoldRoot() (string, error) {
-	// 方案1：从当前工作目录向上查找（开发模式）
-	cwd, err := os.Getwd()
+	// 下载模板
+	zipPath := filepath.Join(tempDir, "template.zip")
+	if err := downloadFile(templateURL, zipPath); err != nil {
+		return err
+	}
+
+	// 解压模板
+	extractPath := filepath.Join(tempDir, "extracted")
+	if err := unzip(zipPath, extractPath); err != nil {
+		return err
+	}
+
+	// 查找实际的模板目录（通常是 ai_skeleton-main）
+	templateDir := ""
+	entries, err := os.ReadDir(extractPath)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	// 检查当前目录是否是脚手架根目录
-	if isScaffoldRoot(cwd) {
-		return cwd, nil
-	}
-
-	// 检查父目录
-	parent := filepath.Dir(cwd)
-	if isScaffoldRoot(parent) {
-		return parent, nil
-	}
-
-	return "", fmt.Errorf("未找到脚手架根目录，请确保在 ai_skeleton 目录或其子目录中运行")
-}
-
-// isScaffoldRoot 判断是否是脚手架根目录
-func isScaffoldRoot(dir string) bool {
-	// 检查关键文件是否存在
-	markers := []string{
-		"backend/go.mod",
-		"frontend/package.json",
-		"Makefile",
-		"CLAUDE.md",
-	}
-
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(dir, marker)); err != nil {
-			return false
+	for _, entry := range entries {
+		if entry.IsDir() {
+			templateDir = filepath.Join(extractPath, entry.Name())
+			break
 		}
 	}
 
-	return true
+	if templateDir == "" {
+		return fmt.Errorf("无法找到模板目录")
+	}
+
+	// 复制并处理模板
+	return copyDir(templateDir, dst, meta)
+}
+
+// downloadFile 下载文件
+func downloadFile(url, filepath string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("下载失败: 状态码 %d", resp.StatusCode)
+	}
+
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	return err
+}
+
+// unzip 解压ZIP文件
+func unzip(src, dest string) error {
+	r, err := zip.OpenReader(src)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+
+	for _, f := range r.File {
+		fpath := filepath.Join(dest, f.Name)
+
+		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
+			return fmt.Errorf("非法文件路径: %s", fpath)
+		}
+
+		if f.FileInfo().IsDir() {
+			if err := os.MkdirAll(fpath, os.ModePerm); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+			return err
+		}
+
+		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			return err
+		}
+
+		rc, err := f.Open()
+		if err != nil {
+			outFile.Close()
+			return err
+		}
+
+		_, err = io.Copy(outFile, rc)
+		outFile.Close()
+		rc.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // copyDir 复制目录并替换占位符
@@ -151,7 +224,7 @@ func copyDir(src, dst string, meta *ProjectMeta) error {
 			return err
 		}
 
-		// 跳过 CLI 目录、临时目录、构建产物
+		// 跳过 CLI 目录、临时目录、构建产物和其他无关目录
 		relPath, _ := filepath.Rel(src, path)
 		if shouldSkip(relPath) {
 			if info.IsDir() {
@@ -182,6 +255,9 @@ func shouldSkip(path string) bool {
 		"frontend/node_modules",
 		"frontend/dist",
 		"requirements",
+		".github",
+		".vscode",
+		".idea",
 	}
 
 	for _, skip := range skipDirs {
@@ -253,6 +329,15 @@ func replaceContent(content string, meta *ProjectMeta) string {
 	}
 
 	return result
+}
+
+// getCurrentDir 获取当前目录
+func getCurrentDir() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "my_project"
+	}
+	return filepath.Base(dir)
 }
 
 // toTitle 转换为标题格式

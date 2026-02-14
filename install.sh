@@ -40,7 +40,7 @@ case $OS in
         ;;
 esac
 
-echo -e "${GREEN}AI Skeleton 安装脚本${NC}"
+echo -e "${GREEN}AIS 安装脚本${NC}"
 echo "操作系统: $OS"
 echo "架构: $ARCH"
 echo ""

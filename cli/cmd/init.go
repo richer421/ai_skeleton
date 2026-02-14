@@ -13,6 +13,7 @@ var (
 	projectDesc    string
 	projectVersion string
 	modulePath     string
+	templateURL    string
 	skipDeps       bool
 	skipNpm        bool
 	skipGo         bool
@@ -23,12 +24,16 @@ var initCmd = &cobra.Command{
 	Short: "初始化新项目",
 	Long: `初始化一个新的 AI Skeleton 项目。
 
+此命令会从远程模板仓库下载最新模板并创建项目。
+默认使用官方模板仓库，可通过 --template-url 指定私有仓库。
+
 此命令会：
 1. 检查环境依赖（Go、npm）
 2. 收集项目信息
-3. 复制模板文件并替换占位符
-4. 安装依赖（Air、Swagger、npm packages）
-5. 生成初始代码`,
+3. 从远程下载最新模板
+4. 替换模板中的占位符
+5. 安装依赖（Air、Swagger、npm packages）
+6. 生成初始代码`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: runInit,
 }
@@ -40,6 +45,7 @@ func init() {
 	initCmd.Flags().StringVarP(&projectDesc, "desc", "d", "", "项目描述")
 	initCmd.Flags().StringVarP(&projectVersion, "version", "v", "1.0.0", "项目版本")
 	initCmd.Flags().StringVarP(&modulePath, "module", "m", "", "Go 模块路径")
+	initCmd.Flags().StringVarP(&templateURL, "template-url", "t", "", "自定义模板仓库地址（用于私有仓库）")
 	initCmd.Flags().BoolVar(&skipDeps, "skipdeps", false, "跳过依赖安装")
 	initCmd.Flags().BoolVar(&skipNpm, "skipnpm", false, "跳过 npm 依赖安装")
 	initCmd.Flags().BoolVar(&skipGo, "skipgo", false, "跳过 Go 工具安装")
@@ -76,7 +82,6 @@ func runInit(cmd *cobra.Command, args []string) error {
 	if err := renderer.RenderProject(meta); err != nil {
 		return fmt.Errorf("生成项目失败: %w", err)
 	}
-	fmt.Println("  ✓ 项目文件生成完成")
 	fmt.Println()
 
 	// 安装依赖
@@ -120,6 +125,7 @@ func collectProjectInfo() (*renderer.ProjectMeta, error) {
 		Description: projectDesc,
 		Version:     projectVersion,
 		Module:      modulePath,
+		TemplateURL: templateURL,
 	}
 
 	// 使用交互式输入收集信息
